@@ -52,7 +52,7 @@ namespace WindowsFormsApp2
 
         private void button2_Click(object sender, EventArgs e)
         {
-            var awsCredentials = new Amazon.Runtime.BasicAWSCredentials("AKIAU65SRJDXLD3MUKEF", "/jT4FxGDl4kWaBf06y3HD1AsiRHu6MEwmpleawRS");
+            var awsCredentials = new Amazon.Runtime.BasicAWSCredentials(aws.accesstoken, aws.secretkey);
             var client = new AmazonRekognitionClient(awsCreden‌​tials, Amazon.RegionEndpoint.EUWest2);
 
 
