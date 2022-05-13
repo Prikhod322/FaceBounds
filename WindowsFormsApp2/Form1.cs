@@ -20,7 +20,7 @@ namespace WindowsFormsApp2
         {
             InitializeComponent();
         }
-
+        MemoryStream memoryStream;
         private void button1_Click(object sender, EventArgs e)
         {
             OpenFileDialog openFileDialog1 = new OpenFileDialog();
@@ -30,14 +30,14 @@ namespace WindowsFormsApp2
                 return;
 
             var bitmap = new Bitmap(openFileDialog1.FileName);
-            ResizeAll(bitmap);
             pictureBox1.Image = bitmap;
+            pictureBox1.BackgroundImageLayout = ImageLayout.Zoom;
+            memoryStream = new MemoryStream(File.ReadAllBytes(openFileDialog1.FileName));
         }
 
         private void ResizeAll(Bitmap image)
         {
-            pictureBox1.Width = image.Width;
-            pictureBox1.Height = image.Height;
+
 
             this.Width = image.Width + 43;
             this.Height = image.Height + 120;
@@ -55,38 +55,22 @@ namespace WindowsFormsApp2
             var awsCredentials = new Amazon.Runtime.BasicAWSCredentials(aws.accesstoken, aws.secretkey);
             var client = new AmazonRekognitionClient(awsCreden‌​tials, Amazon.RegionEndpoint.EUWest2);
 
-
-            MemoryStream memoryStream = new MemoryStream();
-            pictureBox1.Image.Save(memoryStream, System.Drawing.Imaging.ImageFormat.Png);
-
             List<Bounds> bounds = new List<Bounds>();
 
-            client.DetectFaces(new Amazon.Rekognition.Model.DetectFacesRequest()
+            client.DetectLabels(new Amazon.Rekognition.Model.DetectLabelsRequest()
             {
                 Image = new Amazon.Rekognition.Model.Image()
                 {
                     Bytes = memoryStream
                 }
-            }).FaceDetails.ForEach(x =>
+            }).Labels.ForEach(x =>
             {
-                bounds.Add(new Bounds()
-                {
-                    Top = (int)(x.BoundingBox.Top * pictureBox1.Height),
-                    Left = (int)(x.BoundingBox.Left * pictureBox1.Width),
-                    Height = (int)(x.BoundingBox.Height * pictureBox1.Height),
-                    Width = (int)(x.BoundingBox.Width * pictureBox1.Width)
-                });
+                listBox1.Items.Add(x.Name);
+                
             });
-
-            Graphics g = pictureBox1.CreateGraphics();
 
             Brush brush = new SolidBrush(Color.YellowGreen);
             Pen pen = new Pen(brush, 2);
-
-            bounds.ForEach(x =>
-            {
-                g.DrawRectangle(pen, new Rectangle(x.Left, x.Top, x.Width, x.Height));
-            });
         }
     }
 }
